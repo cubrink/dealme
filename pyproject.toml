@@ -7,7 +7,9 @@ authors = [
     { name = "Curtis Brinker", email = "" }
 ]
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "pytest[dev]>=9.0.3",
+]
 
 [build-system]
 requires = ["uv_build>=0.10.12,<0.11.0"]
