@@ -1,0 +1,70 @@
+# Sphinx documentation justfile
+
+# Default recipe to display help
+default:
+    @just --list
+
+# Open a list of files to edit in a text editor
+edit prefix="":
+    #!/usr/bin/env bash
+    if [ -z "{{prefix}}" ]; then
+        # No prefix: exclude api/ directory
+        file=$(find source -type f \( -name "*.py" -o -name "*.rst" -o -name "*.md" \) | grep -v "^source/api/" | sed 's|^source/||' | fzf)
+        if [ -n "$file" ]; then
+            ${EDITOR:-vim} "source/$file"
+        fi
+    else
+        # With prefix: filter out prefix from display
+        file=$(find "source/{{prefix}}" -type f \( -name "*.py" -o -name "*.rst" -o -name "*.md" \) | sed 's|^source/{{prefix}}/||' | fzf)
+        if [ -n "$file" ]; then
+            ${EDITOR:-vim} "source/{{prefix}}/$file"
+        fi
+    fi
+
+# Open the justfile in a text editor
+just:
+    ${EDITOR:-vim} {{justfile()}}
+
+# Serve docs with auto-rebuild and live reload
+serve:
+    sphinx-autobuild source build/html --open-browser
+
+# Generate API documentation from source code
+apidoc:
+    sphinx-apidoc -f -o source/api ../../src
+
+# Build HTML documentation (with API docs generation)
+build: apidoc
+    sphinx-build -b html source build/html
+
+# Clean built documentation
+clean:
+    rm -rf build/
+
+# Build documentation and check for warnings/errors
+strict: apidoc
+    sphinx-build -b html -W --keep-going source build/html
+
+# Run all lints (linkcheck and spellcheck)
+lint: linkcheck spellcheck
+
+# Check for broken links
+linkcheck:
+    sphinx-build -b linkcheck source build/html
+
+# Spell check documentation (requires sphinxcontrib-spelling and aspell/hunspell)
+spellcheck:
+    sphinx-build -b spelling source build/html
+
+# Build PDF documentation (requires LaTeX)
+pdf: apidoc
+    sphinx-build -b latex source build/latex
+    cd build/latex && make
+
+# Build EPUB documentation
+epub: apidoc
+    sphinx-build -b epub source build/epub
+
+# Clean and rebuild (fresh build)
+rebuild: clean build
+
