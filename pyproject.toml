@@ -7,10 +7,16 @@ authors = [
     { name = "Curtis Brinker", email = "" }
 ]
 requires-python = ">=3.13"
-dependencies = [
-    "pytest[dev]>=9.0.3",
-]
+dependencies = []
 
 [build-system]
 requires = ["uv_build>=0.10.12,<0.11.0"]
 build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "myst-parser>=5.0.0",
+    "pytest>=9.0.3",
+    "sphinx>=9.1.0",
+    "sphinx-rtd-theme>=3.1.0",
+]
